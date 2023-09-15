@@ -4,6 +4,8 @@ import asyncHandler from "express-async-handler"
 import validateMongoDbId from "../utils/validateDBId.js"
 import generateRefreshToken from "../config/refreshToken.js"
 import jwt from "jsonwebtoken"
+import sendEmail from "./emailController.js"
+import crypto from "crypto"
 
 const register = asyncHandler(async(req, res) => {
     const email = req.body.email
@@ -169,6 +171,57 @@ const handleRefreshToken = asyncHandler(async(req, res) => {
     })
 })
 
+const changePassword = asyncHandler(async(req, res) => {
+    const {_id} = req.user
+    const {password} = req.body
+    validateMongoDbId(_id)
+    const user = await User.findById(_id)
+    if (password) {
+        user.password = password
+        const changePassword = await user.save()
+        res.json(changePassword)
+    } else {
+        res.json(user)
+    }
+})
+
+const forgotPassworToken = asyncHandler(async(req, res) => {
+    const {email} = req.body
+    const user = await User.findOne({email})
+    if (!user)  throw new Error("User not found with this email")
+    try {
+        const token = await user.createPasswordResetToken()
+        await user.save()
+        const resetURL = `Hi, Please follow thi link to reset Your Password. This link is valid till 10 minutes from now. <a href='http://localhost:4010/api/user/reset-password/${token}'>Click Here</>`
+        const data = {
+            to: email,
+            subject: "Forgot Account Password Link - TechTitans",
+            text: "Hi! User",
+            htm: resetURL
+        }
+        sendEmail(data)
+        res.json(token)
+    } catch (error) {
+        throw new Error(error)
+    }
+})
+
+const resetPassword = asyncHandler(async(req, res) => {
+    const {password} = req.body
+    const {token} = req.params
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+    const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: {$gt: Date.now()}
+    })
+    if (!user) throw new Error("Token expired, please try again later")
+    user.password = password
+    user.passwordResetToken = undefined
+    user.passwordResetExpires = undefined
+    await user.save()
+    res.json(user)
+})
+
 export {
     register,
     login,
@@ -180,4 +233,7 @@ export {
     blockUser,
     unblockUser,
     handleRefreshToken,
+    changePassword,
+    forgotPassworToken,
+    resetPassword,
 }

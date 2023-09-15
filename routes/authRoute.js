@@ -9,7 +9,10 @@ import {
     logout, 
     register, 
     unblockUser, 
+    changePassword, 
     updateUser,
+    forgotPassworToken,
+    resetPassword,
 } from "../controller/userController.js"
 import {authMiddleware, isAdmin} from "../middlewares/authMiddleware.js"
 
@@ -18,6 +21,11 @@ const router = express.Router()
 router.post("/register", register)
 router.post("/login", login)
 router.get("/logout", logout)
+
+router.post("/forgot-password-token", forgotPassworToken)
+router.put("/reset-password/:token", resetPassword)
+router.put("/password", authMiddleware, changePassword)
+
 router.get("/", getAllUser)
 router.get("/refresh", handleRefreshToken)
 router.get("/:id", authMiddleware, isAdmin, getUserByID)
