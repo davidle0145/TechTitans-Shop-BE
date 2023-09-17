@@ -4,6 +4,9 @@ import dbConnect from "./config/dbConnect.js"
 import authRouter from "./routes/authRoute.js"
 import productRouter from "./routes/productRoute.js"
 import blogRouter from "./routes/blogRoute.js"
+import categoryRouter from "./routes/categoryRoute.js"
+import blogCATRouter from "./routes/blogCATRoute.js"
+import brandRouter from "./routes/brandRoute.js"
 import { errorHandler, notFound } from "./middlewares/errorHandler.js"
 import cookieParser from "cookie-parser"
 import morgan from "morgan"
@@ -22,6 +25,9 @@ app.use(cookieParser())
 app.use("/api/user", authRouter)
 app.use("/api/product", productRouter)
 app.use("/api/blog", blogRouter)
+app.use("/api/category", categoryRouter)
+app.use("/api/blogCategory", blogCATRouter)
+app.use("/api/brand", brandRouter)
 
 app.use(notFound)
 app.use(errorHandler)
