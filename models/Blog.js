@@ -35,10 +35,7 @@ var blogSchema = new mongoose.Schema({
         type: ObjectId,
         ref: "User"
     }],
-    image: {
-        type: String,
-        default: "https://neilpatel.com/wp-content/uploads/2017/08/blog.jpg"
-    },
+    images: [],
     author: {
         type: String,
         default: "Admin"

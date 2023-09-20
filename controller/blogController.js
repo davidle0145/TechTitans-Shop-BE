@@ -2,6 +2,8 @@ import Blog from "../models/Blog.js"
 import User from "../models/User.js"
 import asyncHandler from "express-async-handler"
 import validateMongoDbId from "../utils/validateDBId.js"
+import cloudinaryUploadImg from "../utils/cloudinary.js"
+import fs from "fs"
 
 const createBlog = asyncHandler(async(req, res) => {
     try {
@@ -161,6 +163,32 @@ const dislikeBlog = asyncHandler(async(req, res) => {
     }
 })
 
+const uploadImages = asyncHandler(async(req, res) => {
+    const {id} = req.params
+    validateMongoDbId(id)
+    try {
+        const upload = (path) => cloudinaryUploadImg(path, "images")
+        const urls = []
+        const files = req.files
+        for (const file of files) {
+            const {path} = file
+            const newPath = await upload(path)
+            urls.push(newPath)
+            fs.unlinkSync(path)
+        }
+        const updateBlog = await Blog.findByIdAndUpdate(
+            id,
+            { images: urls.map((file) => {
+                return file
+            })},
+            { new: true }
+        )
+        res.json(updateBlog)
+    } catch (error) {
+        throw new Error(error)
+    }
+})
+
 export {
     createBlog,
     updateBlog,
@@ -169,4 +197,5 @@ export {
     getBlogByID,
     likeBlog,
     dislikeBlog,
+    uploadImages,
 }
