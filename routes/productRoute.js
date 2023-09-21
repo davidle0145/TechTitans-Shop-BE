@@ -2,6 +2,7 @@ import express from "express"
 import {
     addToWishList,
     createProduct, 
+    deleteImages, 
     deleteProduct, 
     getAllProduct, 
     getProductByID, 
@@ -16,11 +17,12 @@ const router = express.Router()
 
 router.get("/", getAllProduct)
 router.get("/:id", getProductByID)
-router.put("/upload/:id", authMiddleware, isAdmin, uploadImage.array("images",10), productImgResize, uploadImages)
+router.put("/upload", authMiddleware, isAdmin, uploadImage.array("images",10), productImgResize, uploadImages)
 router.put("/wishList", authMiddleware, addToWishList)
 router.put("/rating", authMiddleware, rating)
 router.post("/create", authMiddleware, isAdmin, createProduct)
 router.delete("/:id", authMiddleware, isAdmin, deleteProduct)
+router.delete("/delete-img/:id", authMiddleware, isAdmin, deleteImages)
 router.put("/:id", authMiddleware, isAdmin, updateProduct)
 
 export default router

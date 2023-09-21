@@ -2,7 +2,9 @@ import Blog from "../models/Blog.js"
 import User from "../models/User.js"
 import asyncHandler from "express-async-handler"
 import validateMongoDbId from "../utils/validateDBId.js"
-import cloudinaryUploadImg from "../utils/cloudinary.js"
+import {
+    cloudinaryUploadImg
+} from "../utils/cloudinary.js"
 import fs from "fs"
 
 const createBlog = asyncHandler(async(req, res) => {
